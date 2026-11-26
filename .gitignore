@@ -1,0 +1,6 @@
+culling_games/build/
+culling_games/install/
+culling_games/log/
+__pycache__/
+*.pyc
+.claude/
