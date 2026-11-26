@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>cg_solver</name>
+  <version>0.1.0</version>
+  <description>
+    Navegação autônoma no labirinto do Culling Games: rota ótima com A* (Parte 1)
+    e mapeamento por DFS usando só sensores (Parte 2).
+  </description>
+  <maintainer email="nicolli.santana@sou.inteli.edu.br">Nicolli Venino Santana</maintainer>
+  <license>MIT</license>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>cg_interfaces</exec_depend>
+
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
