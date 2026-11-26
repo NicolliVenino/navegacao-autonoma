@@ -47,3 +47,59 @@ FUNÇÃO A*(labirinto, inicio, alvo):
 
     RETORNA "não existe caminho"
 ```
+# 2. Arquitetura
+
+## 2.1 Partes
+
+ Na primeira análise da atividade, fiquei pensativa sobre como eu iria separar a primeira parte do algoritmo de busca do melhor caminho da exploração e navegação do robô. Nesse mesmo sentido, também fiquei reflexiva sobre como integrar o simulador nisso tudo. Depois de alguns rascunhos, cheguei na seguintes partes da arquitetura:
+
+ - planejamento.py: contempla o algoritmo de busca (A*).
+ - exploração.py: contempla o algoritmo de exploração do mapa.  
+ - ros.io.py: nó cliente do ROS2
+ - simulador cg: nó cliente do culling_games.
+
+ ## 2.2 Operações que o algoritmo usa
+
+### 2.2.1 get_map()
+
+```
+get_map(), só na Parte 1
+
+def get_map(self):
+    resp = self._call(self.map_cli, GetMap.Request())
+    rows, cols = resp.occupancy_grid_shape
+    flat = resp.occupancy_grid_flattened
+    return [flat[i*cols:(i+1)*cols] for i in range(rows)]   # matriz 29x29
+```
+
+### 2.2.2 move(direção)
+
+```
+def move(self, direction):
+    req = MoveCmd.Request(); req.direction = direction
+    resp = self._call(self.move_cli, req)
+    self.last_move_time = time.monotonic()
+    if self.delay: time.sleep(self.delay)      # opcional, para o vídeo
+    return resp.success, tuple(resp.robot_pos), tuple(resp.target_pos)
+```
+
+### 2.2.3 sense()
+
+```
+def sense(self):
+    limite = self.last_move_time + 0.03          # descarta os primeiros ~30 ms
+    while self.last_sensor is None or self.last_sensor_time < limite:
+        rclpy.spin_once(self, timeout_sec=0.01)  # deixa o callback rodar
+    m = self.last_sensor
+    return {(-1,0): m.up, (1,0): m.down, (0,-1): m.left, (0,1): m.right,
+            (-1,-1): m.up_left, (-1,1): m.up_right,
+```
+
+### 2.2.4 reset()
+```
+def reset(self, map_name=''):
+    req = Reset.Request(); req.is_random = False; req.map_name = map_name
+    self._call(self.reset_cli, req)
+    time.sleep(0.5)
+```
+
